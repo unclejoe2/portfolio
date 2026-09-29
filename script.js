@@ -1,76 +1,306 @@
-// footer year
-document.getElementById("year").textContent =
-new Date().getFullYear();
+/* ================================================= */
+/* YEAR */
+/* ================================================= */
+
+const year = document.getElementById("year");
+
+if (year) {
+  year.textContent = new Date().getFullYear();
+}
 
 
-// reveal animation
-const reveals=document.querySelectorAll(".reveal");
+/* ================================================= */
+/* SCROLL REVEAL */
+/* ================================================= */
 
-const revealOnScroll=()=>{
+const reveals =
+  document.querySelectorAll(".reveal");
 
-for(let el of reveals){
 
-const rect=el.getBoundingClientRect();
+function revealOnScroll() {
 
-if(rect.top<window.innerHeight-100){
+  reveals.forEach((element) => {
 
-el.style.opacity="1";
-el.style.transform="translateY(0)";
-el.style.transition="all 0.6s ease";
+    const rect =
+      element.getBoundingClientRect();
+
+    if (
+      rect.top <
+      window.innerHeight - 80
+    ) {
+
+      element.style.opacity = "1";
+
+      element.style.transform =
+        "translateY(0)";
+
+      element.style.transition =
+        "all .6s ease";
+
+    }
+
+  });
 
 }
 
-}
 
-};
+window.addEventListener(
+  "scroll",
+  revealOnScroll
+);
 
-window.addEventListener("scroll",revealOnScroll);
-window.addEventListener("load",revealOnScroll);
-
-
-// fullscreen viewer
-
-const cards=document.querySelectorAll(".card");
-const lightbox=document.querySelector(".lightbox");
-const img=document.querySelector(".lightbox-img");
-const video=document.querySelector(".lightbox-video");
-const close=document.querySelector(".close");
+window.addEventListener(
+  "load",
+  revealOnScroll
+);
 
 
-cards.forEach(card=>{
+/* ================================================= */
+/* LIGHTBOX */
+/* ================================================= */
 
-card.addEventListener("click",()=>{
+const lightbox =
+  document.querySelector(".lightbox");
 
-const image=card.querySelector("img");
-const vid=card.querySelector("video");
+const lightboxImage =
+  document.querySelector(".lightbox-img");
 
-lightbox.style.display="flex";
+const lightboxVideo =
+  document.querySelector(".lightbox-video");
 
-if(image){
+const closeButton =
+  document.querySelector(".close");
 
-img.src=image.src;
-img.style.display="block";
-video.style.display="none";
 
-}
+const cards =
+  document.querySelectorAll(
+    ".portfolio-card"
+  );
 
-if(vid){
 
-video.src=vid.querySelector("source").src;
-video.style.display="block";
-img.style.display="none";
-video.play();
+cards.forEach((card) => {
 
-}
+  card.addEventListener(
+    "click",
+    () => {
+
+      /* Ignore empty cards */
+
+      if (
+        card.classList.contains(
+          "empty-card"
+        )
+      ) {
+        return;
+      }
+
+
+      const image =
+        card.querySelector("img");
+
+      const video =
+        card.querySelector("video");
+
+
+      /* IMAGE */
+
+      if (image) {
+
+        lightboxImage.src =
+          image.src;
+
+        lightboxImage.alt =
+          image.alt;
+
+        lightboxImage.style.display =
+          "block";
+
+        lightboxVideo.style.display =
+          "none";
+
+        lightboxVideo.pause();
+
+        lightbox.style.display =
+          "flex";
+
+      }
+
+
+      /* VIDEO */
+
+      if (video) {
+
+        lightboxVideo.src =
+          video.currentSrc ||
+          video.src;
+
+        lightboxVideo.style.display =
+          "block";
+
+        lightboxImage.style.display =
+          "none";
+
+        lightbox.style.display =
+          "flex";
+
+        lightboxVideo.currentTime = 0;
+
+        lightboxVideo.play();
+
+      }
+
+    }
+  );
 
 });
 
+
+/* ================================================= */
+/* CLOSE LIGHTBOX */
+/* ================================================= */
+
+function closeLightbox() {
+
+  lightbox.style.display =
+    "none";
+
+  lightboxVideo.pause();
+
+  lightboxVideo.currentTime = 0;
+
+  lightboxImage.src = "";
+
+  lightboxVideo.src = "";
+
+}
+
+
+closeButton.addEventListener(
+  "click",
+  closeLightbox
+);
+
+
+/* CLICK OUTSIDE */
+
+lightbox.addEventListener(
+  "click",
+  (event) => {
+
+    if (
+      event.target === lightbox
+    ) {
+
+      closeLightbox();
+
+    }
+
+  }
+);
+
+
+/* ESCAPE */
+
+document.addEventListener(
+  "keydown",
+  (event) => {
+
+    if (
+      event.key === "Escape"
+    ) {
+
+      closeLightbox();
+
+    }
+
+  }
+);
+
+
+/* ================================================= */
+/* DRAG TO SCROLL */
+/* ================================================= */
+
+const sliders =
+  document.querySelectorAll(
+    ".portfolio-track"
+  );
+
+
+sliders.forEach((slider) => {
+
+  let isDown = false;
+
+  let startX;
+
+  let scrollLeft;
+
+
+  slider.addEventListener(
+    "mousedown",
+    (event) => {
+
+      isDown = true;
+
+      slider.style.cursor =
+        "grabbing";
+
+      startX =
+        event.pageX -
+        slider.offsetLeft;
+
+      scrollLeft =
+        slider.scrollLeft;
+
+    }
+  );
+
+
+  slider.addEventListener(
+    "mouseleave",
+    () => {
+
+      isDown = false;
+
+      slider.style.cursor =
+        "grab";
+
+    }
+  );
+
+
+  slider.addEventListener(
+    "mouseup",
+    () => {
+
+      isDown = false;
+
+      slider.style.cursor =
+        "grab";
+
+    }
+  );
+
+
+  slider.addEventListener(
+    "mousemove",
+    (event) => {
+
+      if (!isDown) return;
+
+      event.preventDefault();
+
+      const x =
+        event.pageX -
+        slider.offsetLeft;
+
+      const walk =
+        (x - startX) * 1.5;
+
+      slider.scrollLeft =
+        scrollLeft - walk;
+
+    }
+  );
+
 });
-
-
-close.onclick=()=>{
-
-lightbox.style.display="none";
-video.pause();
-
-};
